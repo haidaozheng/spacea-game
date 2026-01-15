@@ -52,22 +52,27 @@ const EnemyTypes = {
 class Enemy {
     constructor(x, y, type = 'scout') {
         const data = EnemyTypes[type] || EnemyTypes.scout;
+        const difficulty = DifficultySettings[Config.difficulty] || DifficultySettings.normal;
         
         this.x = x;
         this.y = y;
         this.type = type;
         this.width = data.width;
         this.height = data.height;
-        this.health = data.health;
-        this.maxHealth = data.health;
-        this.speed = data.speed;
-        this.score = data.score;
+        
+        // 根据难度调整属性
+        this.health = Math.ceil(data.health * difficulty.enemyHealthMultiplier);
+        this.maxHealth = this.health;
+        this.speed = data.speed * difficulty.enemySpeedMultiplier;
+        this.score = Math.ceil(data.score * difficulty.scoreMultiplier);
         this.color = data.color;
         this.isDead = false;
+        this.expValue = Math.ceil(data.score * 0.5); // 经验值为分数的一半
         
-        // 武器
+        // 武器 - 根据难度调整
         this.weapon = new Weapon(data.weaponType);
-        this.weapon.fireRate = data.fireRate;
+        this.weapon.fireRate = Math.ceil(data.fireRate * difficulty.enemyFireRateMultiplier);
+        this.weapon.damage = Math.ceil(this.weapon.damage * difficulty.enemyDamageMultiplier);
         this.weapon.color = data.color;
         
         // 移动模式

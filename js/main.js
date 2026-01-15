@@ -11,6 +11,7 @@ class Game {
         this.pauseScreen = document.getElementById('pause-screen');
         this.hud = document.getElementById('hud');
         this.weaponIndicator = document.getElementById('weapon-indicator');
+        this.levelIndicator = document.getElementById('level-indicator');
         
         // 设置画布大小
         this.resize();
@@ -126,6 +127,18 @@ class Game {
         document.getElementById('quit-btn').addEventListener('click', () => {
             this.quitToMenu();
         });
+
+        // 难度选择按钮
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除所有按钮的active状态
+                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                // 添加当前按钮的active状态
+                btn.classList.add('active');
+                // 设置难度
+                Config.difficulty = btn.dataset.difficulty;
+            });
+        });
     }
 
     updateAutoFireUI() {
@@ -170,8 +183,10 @@ class Game {
         this.pauseScreen.classList.add('hidden');
         this.hud.classList.remove('hidden');
         this.weaponIndicator.classList.remove('hidden');
+        this.levelIndicator.classList.remove('hidden');
 
         this.updateHUD();
+        this.updateLevelUI();
         this.updateAutoFireUI();
     }
 
@@ -226,6 +241,7 @@ class Game {
         this.pauseScreen.classList.add('hidden');
         this.hud.classList.add('hidden');
         this.weaponIndicator.classList.add('hidden');
+        this.levelIndicator.classList.add('hidden');
         this.startScreen.classList.remove('hidden');
         
         // 清空游戏状态
@@ -242,9 +258,11 @@ class Game {
         // 显示结算画面
         document.getElementById('final-score').textContent = this.score;
         document.getElementById('final-wave').textContent = waveManager.currentWave;
+        document.getElementById('final-level').textContent = this.player.level;
         
         this.hud.classList.add('hidden');
         this.weaponIndicator.classList.add('hidden');
+        this.levelIndicator.classList.add('hidden');
         this.gameOverScreen.classList.remove('hidden');
     }
 
@@ -323,6 +341,12 @@ class Game {
                         
                         // 加分
                         this.score += enemy.score * this.player.scoreMultiplier;
+                        
+                        // 获得经验值
+                        if (this.player.addExp(enemy.expValue)) {
+                            // 升级了，更新UI
+                            this.updateLevelUI();
+                        }
                         
                         // 掉落道具
                         powerupManager.spawnRandom(enemy.x, enemy.y);
@@ -405,6 +429,15 @@ class Game {
 
         // 武器
         document.getElementById('weapon-name').textContent = this.player.weapon.name;
+        
+        // 更新经验条
+        this.updateLevelUI();
+    }
+
+    updateLevelUI() {
+        document.getElementById('level-text').textContent = `Lv.${this.player.level}`;
+        const expPercent = this.player.getExpProgress() * 100;
+        document.getElementById('exp-fill').style.width = `${expPercent}%`;
     }
 
     draw() {
