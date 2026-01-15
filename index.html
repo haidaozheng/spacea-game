@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SpaceA</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -82,6 +82,25 @@
             <span id="weapon-name">基础弹</span>
             <span class="separator">|</span>
             <span id="auto-fire-status">自动: 关</span>
+        </div>
+        
+        <!-- 触屏控制 -->
+        <div id="touch-controls" class="hidden">
+            <!-- 虚拟摇杆 -->
+            <div id="joystick-zone">
+                <div id="joystick-base">
+                    <div id="joystick-stick"></div>
+                </div>
+            </div>
+            
+            <!-- 右侧按钮 -->
+            <div id="touch-buttons">
+                <button id="touch-fire" class="touch-btn">FIRE</button>
+                <button id="touch-auto" class="touch-btn touch-btn-small">AUTO</button>
+            </div>
+            
+            <!-- 暂停按钮 -->
+            <button id="touch-pause" class="touch-btn-pause">II</button>
         </div>
     </div>
     

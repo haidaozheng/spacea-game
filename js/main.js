@@ -12,6 +12,18 @@ class Game {
         this.hud = document.getElementById('hud');
         this.weaponIndicator = document.getElementById('weapon-indicator');
         this.levelIndicator = document.getElementById('level-indicator');
+        this.touchControls = document.getElementById('touch-controls');
+        
+        // 触摸控制相关
+        this.isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        this.joystick = {
+            active: false,
+            startX: 0,
+            startY: 0,
+            currentX: 0,
+            currentY: 0,
+            maxDistance: 40
+        };
         
         // 设置画布大小
         this.resize();
@@ -139,6 +151,111 @@ class Game {
                 Config.difficulty = btn.dataset.difficulty;
             });
         });
+
+        // 触摸控制事件
+        this.bindTouchEvents();
+    }
+
+    bindTouchEvents() {
+        const joystickZone = document.getElementById('joystick-zone');
+        const joystickStick = document.getElementById('joystick-stick');
+        const fireBtn = document.getElementById('touch-fire');
+        const autoBtn = document.getElementById('touch-auto');
+        const pauseBtn = document.getElementById('touch-pause');
+
+        if (!joystickZone) return;
+
+        // 摇杆触摸开始
+        joystickZone.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = joystickZone.getBoundingClientRect();
+            this.joystick.active = true;
+            this.joystick.startX = rect.left + rect.width / 2;
+            this.joystick.startY = rect.top + rect.height / 2;
+            this.updateJoystick(touch.clientX, touch.clientY, joystickStick);
+        });
+
+        // 摇杆触摸移动
+        joystickZone.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (this.joystick.active) {
+                const touch = e.touches[0];
+                this.updateJoystick(touch.clientX, touch.clientY, joystickStick);
+            }
+        });
+
+        // 摇杆触摸结束
+        joystickZone.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this.joystick.active = false;
+            joystickStick.style.transform = 'translate(0px, 0px)';
+            if (this.player) {
+                this.player.keys.up = false;
+                this.player.keys.down = false;
+                this.player.keys.left = false;
+                this.player.keys.right = false;
+            }
+        });
+
+        // 射击按钮
+        fireBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (this.player && this.state === 'playing') {
+                this.player.keys.shoot = true;
+            }
+        });
+
+        fireBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (this.player) {
+                this.player.keys.shoot = false;
+            }
+        });
+
+        // 自动射击按钮
+        autoBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (this.player && this.state === 'playing') {
+                this.player.toggleAutoFire();
+                this.updateAutoFireUI();
+                autoBtn.classList.toggle('active', this.player.autoFire);
+            }
+        });
+
+        // 暂停按钮
+        pauseBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (this.state === 'playing' || this.state === 'paused') {
+                this.togglePause();
+            }
+        });
+    }
+
+    updateJoystick(touchX, touchY, stickElement) {
+        const dx = touchX - this.joystick.startX;
+        const dy = touchY - this.joystick.startY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const maxDist = this.joystick.maxDistance;
+        
+        let limitedX = dx;
+        let limitedY = dy;
+        
+        if (distance > maxDist) {
+            limitedX = (dx / distance) * maxDist;
+            limitedY = (dy / distance) * maxDist;
+        }
+        
+        stickElement.style.transform = `translate(${limitedX}px, ${limitedY}px)`;
+        
+        // 更新玩家移动
+        if (this.player && this.state === 'playing') {
+            const threshold = 10;
+            this.player.keys.left = dx < -threshold;
+            this.player.keys.right = dx > threshold;
+            this.player.keys.up = dy < -threshold;
+            this.player.keys.down = dy > threshold;
+        }
     }
 
     updateAutoFireUI() {
@@ -184,6 +301,15 @@ class Game {
         this.hud.classList.remove('hidden');
         this.weaponIndicator.classList.remove('hidden');
         this.levelIndicator.classList.remove('hidden');
+        
+        // 显示触摸控制（如果是触屏设备）
+        if (this.isTouchDevice && this.touchControls) {
+            this.touchControls.classList.remove('hidden');
+            this.touchControls.classList.add('visible');
+            // 重置自动射击按钮状态
+            const autoBtn = document.getElementById('touch-auto');
+            if (autoBtn) autoBtn.classList.remove('active');
+        }
 
         this.updateHUD();
         this.updateLevelUI();
@@ -244,6 +370,12 @@ class Game {
         this.levelIndicator.classList.add('hidden');
         this.startScreen.classList.remove('hidden');
         
+        // 隐藏触摸控制
+        if (this.touchControls) {
+            this.touchControls.classList.add('hidden');
+            this.touchControls.classList.remove('visible');
+        }
+        
         // 清空游戏状态
         enemyManager.clear();
         powerupManager.clear();
@@ -264,6 +396,12 @@ class Game {
         this.weaponIndicator.classList.add('hidden');
         this.levelIndicator.classList.add('hidden');
         this.gameOverScreen.classList.remove('hidden');
+        
+        // 隐藏触摸控制
+        if (this.touchControls) {
+            this.touchControls.classList.add('hidden');
+            this.touchControls.classList.remove('visible');
+        }
     }
 
     update(currentTime) {

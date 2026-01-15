@@ -276,3 +276,184 @@ body {
     transition: width 0.3s;
     width: 0%;
 }
+
+/* 触屏控制 */
+#touch-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 15;
+}
+
+#touch-controls > * {
+    pointer-events: auto;
+}
+
+/* 虚拟摇杆 */
+#joystick-zone {
+    position: absolute;
+    left: 20px;
+    bottom: 80px;
+    width: 150px;
+    height: 150px;
+}
+
+#joystick-base {
+    width: 120px;
+    height: 120px;
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    border-radius: 50%;
+    background: rgba(0, 255, 255, 0.1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#joystick-stick {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #00ffff;
+    border-radius: 50%;
+    background: rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    position: absolute;
+    transition: none;
+}
+
+/* 右侧按钮 */
+#touch-buttons {
+    position: absolute;
+    right: 20px;
+    bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.touch-btn {
+    width: 80px;
+    height: 80px;
+    border: 2px solid #00ffff;
+    border-radius: 50%;
+    background: rgba(0, 255, 255, 0.2);
+    color: #00ffff;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.touch-btn:active, .touch-btn.active {
+    background: rgba(0, 255, 255, 0.5);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.7);
+}
+
+.touch-btn-small {
+    width: 60px;
+    height: 60px;
+    font-size: 12px;
+}
+
+.touch-btn-small.active {
+    background: rgba(0, 255, 0, 0.4);
+    border-color: #00ff00;
+    color: #00ff00;
+}
+
+/* 暂停按钮 */
+.touch-btn-pause {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 44px;
+    height: 44px;
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    border-radius: 8px;
+    background: rgba(0, 255, 255, 0.1);
+    color: #00ffff;
+    font-size: 16px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.touch-btn-pause:active {
+    background: rgba(0, 255, 255, 0.3);
+}
+
+/* 移动端适配 */
+@media (max-width: 800px) {
+    .screen h1 {
+        font-size: 32px;
+        letter-spacing: 4px;
+    }
+    
+    .screen .subtitle {
+        font-size: 14px;
+        letter-spacing: 6px;
+        margin-bottom: 25px;
+    }
+    
+    .controls-info {
+        display: none;
+    }
+    
+    .btn {
+        padding: 12px 35px;
+        font-size: 16px;
+    }
+    
+    .difficulty-btn {
+        padding: 8px 18px;
+        font-size: 12px;
+    }
+    
+    #hud {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        font-size: 14px;
+    }
+    
+    .health-bar {
+        width: 100px;
+    }
+    
+    #level-indicator {
+        top: 40px;
+        left: 10px;
+        font-size: 12px;
+    }
+    
+    .exp-bar {
+        width: 80px;
+    }
+    
+    #weapon-indicator {
+        bottom: 20px;
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
+
+/* 只在触屏设备显示触摸控制 */
+@media (hover: none) and (pointer: coarse) {
+    #touch-controls.visible {
+        display: block;
+    }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #touch-controls {
+        display: none !important;
+    }
+}
